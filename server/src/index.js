@@ -2,25 +2,30 @@
 // server/src/index.js
 const express = require('express');
 const dotenv = require('dotenv');
-dotenv.config(); // Завантаження змінних середовища з файлу .env
+const path = require('path');
+
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
+
+const productRoutes = require('./routes/productRoutes');
+const userRoutes = require('./routes/userRoutes');
+const orderRoutes = require('./routes/orderRoutes');
+const errorHandler = require('./utils/errorHandler');
+
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 console.log('DB_HOST:', process.env.DB_HOST);
 console.log('DB_USER:', process.env.DB_USER);
 console.log('DB_PASSWORD:', process.env.DB_PASSWORD ? '******' : '(none)');
 console.log('DB_NAME:', process.env.DB_NAME);
-
-const orderRoutes = require('./routes/orderRoutes');
-const productRoutes = require('./routes/productRoutes');
-const userRoutes = require('./routes/userRoutes');
-const errorHandler = require('./utils/errorHandler');
+console.log('JWT_SECRET:', process.env.JWT_SECRET);
 
 const app = express();
 
 app.use(express.json());
 
-app.use('/api/orders', orderRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/orders', orderRoutes);
 
 app.get('/', (req, res) => {
     res.send('Welcome to the eCommerce API');
