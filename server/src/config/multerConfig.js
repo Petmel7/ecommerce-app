@@ -1,11 +1,19 @@
+
 // server/src/config/multerConfig.js
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
+
+// Переконайтеся, що папка uploads існує
+const uploadsDir = path.join(__dirname, '../../uploads');
+if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir);
+}
 
 // Налаштування збереження файлів
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, 'uploads/');
+        cb(null, uploadsDir);
     },
     filename: (req, file, cb) => {
         cb(null, `${Date.now()}-${file.originalname}`);
@@ -31,4 +39,5 @@ const upload = multer({
 });
 
 module.exports = upload;
+
 

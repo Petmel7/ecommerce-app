@@ -3,6 +3,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const pool = require('../config/db');
+const transporter = require('../config/emailConfig');
 
 const registerUser = async (req, res) => {
     const { name, email, password } = req.body;
@@ -15,9 +16,29 @@ const registerUser = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
         await pool.query('INSERT INTO users (name, email, password) VALUES (?, ?, ?)', [name, email, hashedPassword]);
 
-        res.status(201).json({ message: 'User registered successfully' });
+        const token = jwt.sign({ id: email }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        const url = `http://localhost:5000/api/users/confirm/${token}`;
+
+        await transporter.sendMail({
+            to: email,
+            subject: 'Confirm your email',
+            html: `Click <a href="${url}">here</a> to confirm your email.`
+        });
+
+        res.status(201).json({ message: 'User registered successfully. Please check your email to confirm.' });
     } catch (error) {
         res.status(500).json({ message: error.message });
+    }
+};
+
+const confirmEmail = async (req, res) => {
+    const { token } = req.params;
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        await pool.query('UPDATE users SET confirmed = 1 WHERE email = ?', [decoded.email]);
+        res.status(200).json({ message: 'Email confirmed successfully' });
+    } catch (error) {
+        res.status(500).json({ message: 'Invalid or expired token' });
     }
 };
 
@@ -55,6 +76,9 @@ const getUserProfile = async (req, res) => {
 
 module.exports = {
     registerUser,
+    confirmEmail,
     loginUser,
     getUserProfile
 };
+
+
