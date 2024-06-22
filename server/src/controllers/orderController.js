@@ -81,6 +81,25 @@ const createOrder = async (req, res) => {
     }
 };
 
+const deleteOrder = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const [order] = await pool.query('SELECT * FROM orders WHERE id = ?', [id]);
+        if (order.length === 0) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+
+        // Видалення деталей замовлення
+        await pool.query('DELETE FROM order_items WHERE order_id = ?', [id]);
+        // Видалення замовлення
+        await pool.query('DELETE FROM orders WHERE id = ?', [id]);
+
+        res.status(200).json({ message: 'Order deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 const getOrder = async (req, res) => {
     const { id } = req.params;
     try {
@@ -104,11 +123,48 @@ const getUserOrders = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+// Ці ODER контроллери під питанням, не знаю чи знадобляться в такому вигляді
+const increaseQuantity = async (req, res) => {
+    const { id } = req.params;
+    const { quantity } = req.body; // Кількість для збільшення
+    try {
+        const [product] = await pool.query('SELECT * FROM order_items WHERE id = ?', [id]);
+        if (product.length === 0) {
+            return res.status(404).json({ message: 'Product not found' });
+        }
+        await pool.query('UPDATE order_items SET quantity = quantity + ? WHERE id = ?', [quantity, id]);
+        res.json({ message: 'Quantity increased successfully' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+const decrementQuantity = async (req, res) => {
+    const { id } = req.params;
+    const { quantity } = req.body; // Кількість для зменшення
+    try {
+        const [product] = await pool.query('SELECT * FROM order_items WHERE id = ?', [id]);
+        if (product.length === 0) {
+            return res.status(404).json({ message: 'Product not found' });
+        }
+        if (product[0].quantity < quantity) {
+            return res.status(400).json({ message: 'Insufficient quantity' });
+        }
+        await pool.query('UPDATE order_items SET quantity = quantity - ? WHERE id = ?', [quantity, id]);
+        res.json({ message: 'Quantity decreased successfully' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
 
 module.exports = {
     createOrder,
+    deleteOrder,
     getOrder,
-    getUserOrders
+    getUserOrders,
+    increaseQuantity,
+    decrementQuantity
 };
+
 
 
