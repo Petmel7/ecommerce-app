@@ -1,8 +1,9 @@
+
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
 const User = require('./User');
 
-const Product = sequelize.define('Product', {
+const Product = sequelize.define('product', {
     id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
@@ -37,7 +38,7 @@ const Product = sequelize.define('Product', {
         allowNull: true
     }
 }, {
-    timestamps: true
+    timestamps: false
 });
 
 Product.belongsTo(User, { foreignKey: 'user_id' });

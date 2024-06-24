@@ -2,10 +2,10 @@
 const nodemailer = require('nodemailer');
 
 const transporter = nodemailer.createTransport({
-    service: 'gmail', // Використовуйте вашу службу електронної пошти
+    service: 'gmail',
     auth: {
-        user: process.env.EMAIL_USER, // Ваш email
-        pass: process.env.EMAIL_PASS  // Ваш пароль
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
     }
 });
 
