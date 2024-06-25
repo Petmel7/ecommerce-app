@@ -2,7 +2,7 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
 const User = require('./User');
 
-const RefreshToken = sequelize.define('Refresh_tokens', {
+const RefreshToken = sequelize.define('RefreshToken', {
     id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
@@ -21,7 +21,8 @@ const RefreshToken = sequelize.define('Refresh_tokens', {
         allowNull: false
     }
 }, {
-    timestamps: false
+    timestamps: false,
+    tableName: 'refresh_tokens'
 });
 
 RefreshToken.belongsTo(User, { foreignKey: 'user_id' });
