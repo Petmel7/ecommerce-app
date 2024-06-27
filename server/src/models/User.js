@@ -1,3 +1,4 @@
+
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
 
@@ -23,6 +24,19 @@ const User = sequelize.define('User', {
     confirmed: {
         type: DataTypes.BOOLEAN,
         defaultValue: false
+    },
+    phone: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        unique: true
+    },
+    phoneConfirmed: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+    },
+    confirmationCode: {
+        type: DataTypes.STRING,
+        allowNull: true
     }
 }, {
     timestamps: false,
@@ -30,5 +44,6 @@ const User = sequelize.define('User', {
 });
 
 module.exports = User;
+
 
 

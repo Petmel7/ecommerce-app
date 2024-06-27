@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const RefreshToken = require('../models/RefreshToken');
 const transporter = require('../config/emailConfig');
+const vonage = require('../config/vonageConfig');
 
 const generateAccessToken = (userId) => {
     return jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: '1d' });
@@ -11,6 +12,10 @@ const generateAccessToken = (userId) => {
 
 const generateRefreshToken = (userId) => {
     return jwt.sign({ id: userId }, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d' });
+};
+
+const generateConfirmationCode = () => {
+    return Math.floor(100000 + Math.random() * 900000).toString();
 };
 
 const registerUser = async (req, res) => {
@@ -22,7 +27,14 @@ const registerUser = async (req, res) => {
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
-        await User.create({ name, email, password: hashedPassword });
+
+        const newUser = await User.create({
+            name,
+            email,
+            password: hashedPassword
+        });
+
+        console.log('newUser', newUser); // Логування нового користувача для перевірки
 
         const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '1h' });
         const url = `http://localhost:5000/api/users/confirm/${token}`;
@@ -35,6 +47,7 @@ const registerUser = async (req, res) => {
 
         res.status(201).json({ message: 'User registered successfully. Please check your email to confirm.' });
     } catch (error) {
+        console.error('Error during registration:', error);
         res.status(500).json({ message: error.message });
     }
 };
@@ -47,6 +60,58 @@ const confirmEmail = async (req, res) => {
         res.status(200).json({ message: 'Email confirmed successfully' });
     } catch (error) {
         res.status(500).json({ message: 'Invalid or expired token' });
+    }
+};
+
+const addPhoneNumber = async (req, res) => {
+    const { phone } = req.body;
+    try {
+        const user = await User.findByPk(req.user.id);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const confirmationCode = generateConfirmationCode();
+
+        await user.update({ phone, confirmationCode });
+
+        // Надсилання SMS з підтвердженням
+        const from = process.env.VONAGE_FROM_NUMBER;
+        const to = phone;
+        const text = `Your confirmation code is ${confirmationCode}`;
+
+        await vonage.sms.send({ to, from, text })
+            .then(resp => {
+                console.log('Message sent successfully');
+                console.log(resp);
+                res.status(200).json({ message: 'Phone number added. Please check your phone for the confirmation code.' });
+            })
+            .catch(err => {
+                console.error('Error sending SMS:', err);
+                res.status(500).json({ message: 'Error sending SMS' });
+            });
+
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+const confirmPhoneNumber = async (req, res) => {
+    const { confirmationCode } = req.body;
+    try {
+        const user = await User.findByPk(req.user.id);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        if (user.confirmationCode === confirmationCode) {
+            await user.update({ phoneConfirmed: true, confirmationCode: null });
+            res.json({ message: 'Phone number confirmed successfully.' });
+        } else {
+            res.status(400).json({ message: 'Invalid confirmation code.' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
 };
 
@@ -63,6 +128,11 @@ const loginUser = async (req, res) => {
             return res.status(400).json({ message: 'Invalid credentials' });
         }
 
+        // // Дозволити користувачам входити в систему, навіть якщо телефон не підтверджений
+        // if (!user.phoneConfirmed) {
+        //     return res.status(400).json({ message: 'Phone number not confirmed' });
+        // }
+
         const accessToken = generateAccessToken(user.id);
         const refreshToken = generateRefreshToken(user.id);
 
@@ -75,10 +145,24 @@ const loginUser = async (req, res) => {
     }
 };
 
+const logoutUser = async (req, res) => {
+    const { token } = req.body;
+    if (!token) {
+        return res.status(400).json({ message: 'No token provided' });
+    }
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+        await RefreshToken.destroy({ where: { token } });
+        res.status(200).json({ message: 'Logged out successfully' });
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to log out' });
+    }
+};
+
 const getUserProfile = async (req, res) => {
     try {
         const user = await User.findByPk(req.user.id, {
-            attributes: ['id', 'name', 'email']
+            attributes: ['id', 'name', 'email', 'phone', 'phoneConfirmed']
         });
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
@@ -132,14 +216,11 @@ const deleteOldRefreshTokens = async () => {
 module.exports = {
     registerUser,
     confirmEmail,
+    addPhoneNumber,
+    confirmPhoneNumber,
     loginUser,
+    logoutUser,
     getUserProfile,
     refreshToken,
     deleteOldRefreshTokens
 };
-
-
-
-
-
-
