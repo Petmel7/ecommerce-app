@@ -4,7 +4,6 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const RefreshToken = require('../models/RefreshToken');
 const transporter = require('../config/emailConfig');
-const vonage = require('../config/vonageConfig');
 
 const generateAccessToken = (userId) => {
     return jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: '1d' });
@@ -19,7 +18,7 @@ const generateConfirmationCode = () => {
 };
 
 const registerUser = async (req, res) => {
-    const { name, email, password } = req.body;
+    const { name, lastName, email, password } = req.body;
     try {
         const existingUser = await User.findOne({ where: { email } });
         if (existingUser) {
@@ -30,11 +29,10 @@ const registerUser = async (req, res) => {
 
         const newUser = await User.create({
             name,
+            lastName,
             email,
             password: hashedPassword
         });
-
-        console.log('newUser', newUser); // Логування нового користувача для перевірки
 
         const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '1h' });
         const url = `http://localhost:5000/api/users/confirm/${token}`;
@@ -56,7 +54,7 @@ const confirmEmail = async (req, res) => {
     const { token } = req.params;
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        await User.update({ confirmed: true }, { where: { email: decoded.email } });
+        await User.update({ emailConfirmed: true }, { where: { email: decoded.email } });
         res.status(200).json({ message: 'Email confirmed successfully' });
     } catch (error) {
         res.status(500).json({ message: 'Invalid or expired token' });
@@ -66,8 +64,12 @@ const confirmEmail = async (req, res) => {
 const addPhoneNumber = async (req, res) => {
     const { phone } = req.body;
     try {
+        console.log('Request received:', req.body);
+
         const user = await User.findByPk(req.user.id);
+
         if (!user) {
+            console.log('User not found');
             return res.status(404).json({ message: 'User not found' });
         }
 
@@ -75,23 +77,22 @@ const addPhoneNumber = async (req, res) => {
 
         await user.update({ phone, confirmationCode });
 
-        // Надсилання SMS з підтвердженням
-        const from = process.env.VONAGE_FROM_NUMBER;
-        const to = phone;
-        const text = `Your confirmation code is ${confirmationCode}`;
+        // Отримуємо email з об'єкта user
+        const email = user.email;
 
-        await vonage.sms.send({ to, from, text })
-            .then(resp => {
-                console.log('Message sent successfully');
-                console.log(resp);
-                res.status(200).json({ message: 'Phone number added. Please check your phone for the confirmation code.' });
-            })
-            .catch(err => {
-                console.error('Error sending SMS:', err);
-                res.status(500).json({ message: 'Error sending SMS' });
-            });
+        console.log('Sending email to:', email);
 
+        await transporter.sendMail({
+            to: email,
+            subject: 'Confirm your phone by email',
+            html: `<div>Your phone verification code ${confirmationCode}</div>`
+        });
+
+        console.log('Email sent successfully');
+
+        res.status(200).json({ message: 'Phone number added and confirmation email sent' });
     } catch (error) {
+        console.error('Error:', error);
         res.status(500).json({ message: error.message });
     }
 };
@@ -162,7 +163,7 @@ const logoutUser = async (req, res) => {
 const getUserProfile = async (req, res) => {
     try {
         const user = await User.findByPk(req.user.id, {
-            attributes: ['id', 'name', 'email', 'phone', 'phoneConfirmed']
+            attributes: ['id', 'name', 'lastName', 'email', 'phone', 'phoneConfirmed']
         });
         if (!user) {
             return res.status(404).json({ message: 'User not found' });

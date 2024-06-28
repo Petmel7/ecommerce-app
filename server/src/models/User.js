@@ -12,6 +12,10 @@ const User = sequelize.define('User', {
         type: DataTypes.STRING,
         allowNull: false
     },
+    lastName: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
     email: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -21,7 +25,7 @@ const User = sequelize.define('User', {
         type: DataTypes.STRING,
         allowNull: false
     },
-    confirmed: {
+    emailConfirmed: {
         type: DataTypes.BOOLEAN,
         defaultValue: false
     },

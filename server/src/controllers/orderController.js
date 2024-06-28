@@ -153,14 +153,14 @@ const getSellerOrders = async (req, res) => {
                         {
                             model: Product,
                             where: { user_id: req.user.id },
-                            include: [{ model: User, as: 'seller', attributes: ['name', 'email'] }]
+                            include: [{ model: User, as: 'seller', attributes: ['name', 'email', 'phone'] }]
                         }
                     ]
                 },
                 {
                     model: User,
                     as: 'buyer',
-                    attributes: ['name', 'email']
+                    attributes: ['name', 'email', 'phone']
                 }
             ]
         });
@@ -173,6 +173,7 @@ const getSellerOrders = async (req, res) => {
             order_id: order.id,
             buyer_name: order.buyer.name,
             buyer_email: order.buyer.email,
+            buyer_phone: order.buyer.phone,
             products: order.OrderItems.map(item => ({
                 product_name: item.Product.name,
                 product_price: item.Product.price,
