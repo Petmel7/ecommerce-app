@@ -4,18 +4,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const RefreshToken = require('../models/RefreshToken');
 const transporter = require('../config/emailConfig');
-
-const generateAccessToken = (userId) => {
-    return jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: '1d' });
-};
-
-const generateRefreshToken = (userId) => {
-    return jwt.sign({ id: userId }, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d' });
-};
-
-const generateConfirmationCode = () => {
-    return Math.floor(100000 + Math.random() * 900000).toString();
-};
+const { generateAccessToken, generateRefreshToken, generateConfirmationCode } = require('../auth/auth');
 
 const registerUser = async (req, res) => {
     const { name, lastName, email, password } = req.body;

@@ -25,8 +25,6 @@ const Order = sequelize.define('Order', {
     tableName: 'orders'
 });
 
-// Order.belongsTo(User, { foreignKey: 'user_id', as: 'buyer' });
-
 module.exports = Order;
 
 

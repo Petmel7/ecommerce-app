@@ -42,6 +42,4 @@ const Product = sequelize.define('Product', {
     tableName: 'products'
 });
 
-// Product.belongsTo(User, { foreignKey: 'user_id', as: 'seller' });
-
 module.exports = Product;
