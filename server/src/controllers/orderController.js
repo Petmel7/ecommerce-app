@@ -90,15 +90,6 @@ const createOrder = async (req, res) => {
     }
 };
 
-module.exports = {
-    createOrder,
-    deleteOrder,
-    getOrder,
-    getUserOrders,
-    getSellerOrders
-};
-
-
 // const createOrder = async (req, res) => {
 //     const { items } = req.body;
 //     try {
