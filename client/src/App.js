@@ -1,4 +1,32 @@
 
+// import React from 'react';
+// import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+
+// import Header from './components/Layout/Header';
+// import Footer from './components/Layout/Footer';
+// import HomePage from './pages/HomePage';
+// import LoginPage from './pages/LoginPage';
+// import RegisterPage from './pages/RegisterPage';
+// import ProfilePage from './pages/ProfilePage';
+// import NotFoundPage from './pages/NotFoundPage';
+
+// const App = () => (
+//   <Router>
+//     <Header />
+//     <Routes>
+//       <Route exact path="/" element={<HomePage />} />
+//       <Route path="/login" element={<LoginPage />} />
+//       <Route path="/register" element={<RegisterPage />} />
+//       <Route path="/profile" element={<ProfilePage />} />
+//       <Route path="*" element={<NotFoundPage />} />
+//     </Routes>
+//     <Footer />
+//   </Router>
+// );
+
+// export default App;
+
+
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
@@ -14,16 +42,14 @@ const App = () => (
   <Router>
     <Header />
     <Routes>
-      <Route exact path="/" component={HomePage} />
-      <Route path="/login" component={LoginPage} />
-      <Route path="/register" component={RegisterPage} />
-      <Route path="/profile" component={ProfilePage} />
-      <Route component={NotFoundPage} />
+      <Route exact path="/" element={<HomePage />} />
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
+      <Route path="/profile" element={<ProfilePage />} />
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
     <Footer />
   </Router>
 );
 
 export default App;
-
-

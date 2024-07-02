@@ -4,6 +4,7 @@ const session = require('express-session');
 const dotenv = require('dotenv');
 const path = require('path');
 const passport = require('./config/passport');
+const cors = require('cors');
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 const sequelize = require('./config/db');
@@ -21,6 +22,8 @@ console.log('DB_NAME:', process.env.DB_NAME);
 console.log('JWT_SECRET:', process.env.JWT_SECRET);
 
 const app = express();
+
+app.use(cors());
 
 app.use(express.json());
 

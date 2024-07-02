@@ -1,19 +1,37 @@
-import React from 'react';
+
+import React, { useEffect, useState } from 'react';
 import ProductList from '../components/Product/ProductList';
+import { getProducts } from '../services/products';
 
 const HomePage = () => {
-    // Приклад продуктів, які можна отримати з API
-    const products = [
-        { id: 1, name: 'Товар 1', description: 'Опис товару 1', price: 100, image: 'image1.jpg' },
-        { id: 2, name: 'Товар 2', description: 'Опис товару 2', price: 200, image: 'image2.jpg' },
-    ];
+    const [products, setProducts] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        const fetchProducts = async () => {
+            try {
+                const data = await getProducts();
+                setProducts(data);
+                setLoading(false);
+            } catch (err) {
+                setError(err.message);
+                setLoading(false);
+            }
+        };
+
+        fetchProducts();
+    }, []);
+
+    if (loading) return <div>Loading...</div>;
+    if (error) return <div>Error: {error}</div>;
 
     return (
         <div>
-            <h1>Головна сторінка</h1>
             <ProductList products={products} />
         </div>
     );
 };
 
 export default HomePage;
+

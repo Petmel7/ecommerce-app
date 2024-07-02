@@ -1,4 +1,4 @@
-
+const path = require('path');
 const Product = require('../models/Product');
 
 const getProducts = async (req, res) => {
@@ -25,7 +25,8 @@ const getProductById = async (req, res) => {
 
 const addProduct = async (req, res) => {
     const { name, description, price, stock } = req.body;
-    const image = req.file ? req.file.path : null;
+    const image = req.file ? req.file.filename : null; // використовуємо filename
+
     try {
         const product = await Product.create({
             user_id: req.user.id,
@@ -33,8 +34,9 @@ const addProduct = async (req, res) => {
             description,
             price,
             stock,
-            image
+            image: image ? path.join('uploads', image) : null // створюємо відносний шлях
         });
+
         res.status(201).json({ message: 'Product added successfully', product });
     } catch (error) {
         res.status(500).json({ message: error.message });
