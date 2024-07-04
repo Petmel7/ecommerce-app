@@ -27,9 +27,9 @@ const HomePage = () => {
     if (error) return <div>Error: {error}</div>;
 
     return (
-        <div>
+        <>
             <ProductList products={products} />
-        </div>
+        </>
     );
 };
 

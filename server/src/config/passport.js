@@ -11,14 +11,14 @@ passport.use(new GoogleStrategy({
     async (accessToken, refreshToken, profile, done) => {
         try {
             // Пошук або створення користувача
-            let user = await User.findOne({ where: { googleId: profile.id } });
+            let user = await User.findOne({ where: { googleid: profile.id } });
             if (!user) {
                 console.log('Creating new user with Google profile: ', profile);
                 user = await User.create({
-                    googleId: profile.id,
+                    googleid: profile.id,
                     name: profile.displayName,
                     email: profile.emails[0].value,
-                    emailConfirmed: true
+                    emailconfirmed: true
                 });
             }
             done(null, user);

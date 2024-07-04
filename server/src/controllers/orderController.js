@@ -22,7 +22,7 @@ const createOrder = async (req, res) => {
             total += product.price * item.quantity;
             const productImageURL = `${baseURL}/${path.basename(product.image)}`;
 
-            const seller = await User.findByPk(product.user_id, { attributes: ['name', 'lastName', 'email'] });
+            const seller = await User.findByPk(product.user_id, { attributes: ['name', 'lastname', 'email'] });
             if (seller) {
                 sellers.add(seller.email);
             }
@@ -36,7 +36,7 @@ const createOrder = async (req, res) => {
                     <td>${product.name}</td>
                     <td>${item.quantity}</td>
                     <td>${product.price}</td>
-                    <td>${seller.name} ${seller.lastName}</td>
+                    <td>${seller.name} ${seller.lastname}</td>
                 </tr>
             `;
         }

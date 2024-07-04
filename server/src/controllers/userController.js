@@ -7,7 +7,7 @@ const transporter = require('../config/emailConfig');
 const { generateAccessToken, generateRefreshToken, generateConfirmationCode } = require('../auth/auth');
 
 const registerUser = async (req, res) => {
-    const { name, lastName, email, password } = req.body;
+    const { name, lastname, email, password } = req.body;
     try {
         const existingUser = await User.findOne({ where: { email } });
         if (existingUser) {
@@ -18,7 +18,7 @@ const registerUser = async (req, res) => {
 
         const newUser = await User.create({
             name,
-            lastName,
+            lastname,
             email,
             password: hashedPassword
         });
@@ -43,7 +43,7 @@ const confirmEmail = async (req, res) => {
     const { token } = req.params;
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        await User.update({ emailConfirmed: true }, { where: { email: decoded.email } });
+        await User.update({ emailconfirmed: true }, { where: { email: decoded.email } });
         res.status(200).json({ message: 'Email confirmed successfully' });
     } catch (error) {
         res.status(500).json({ message: 'Invalid or expired token' });
@@ -62,9 +62,9 @@ const addPhoneNumber = async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        const confirmationCode = generateConfirmationCode();
+        const confirmationcode = generateConfirmationCode();
 
-        await user.update({ phone, confirmationCode });
+        await user.update({ phone, confirmationcode });
 
         // Отримуємо email з об'єкта user
         const email = user.email;
@@ -74,7 +74,7 @@ const addPhoneNumber = async (req, res) => {
         await transporter.sendMail({
             to: email,
             subject: 'Confirm your phone by email',
-            html: `<div>Your phone verification code ${confirmationCode}</div>`
+            html: `<div>Your phone verification code ${confirmationcode}</div>`
         });
 
         console.log('Email sent successfully');
@@ -87,15 +87,15 @@ const addPhoneNumber = async (req, res) => {
 };
 
 const confirmPhoneNumber = async (req, res) => {
-    const { confirmationCode } = req.body;
+    const { confirmationcode } = req.body;
     try {
         const user = await User.findByPk(req.user.id);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        if (user.confirmationCode === confirmationCode) {
-            await user.update({ phoneConfirmed: true, confirmationCode: null });
+        if (user.confirmationcode === confirmationcode) {
+            await user.update({ phoneconfirmed: true, confirmationcode: null });
             res.json({ message: 'Phone number confirmed successfully.' });
         } else {
             res.status(400).json({ message: 'Invalid confirmation code.' });
@@ -119,7 +119,7 @@ const loginUser = async (req, res) => {
         }
 
         // // Дозволити користувачам входити в систему, навіть якщо телефон не підтверджений
-        // if (!user.phoneConfirmed) {
+        // if (!user.phoneconfirmed) {
         //     return res.status(400).json({ message: 'Phone number not confirmed' });
         // }
 
@@ -152,7 +152,7 @@ const logoutUser = async (req, res) => {
 const getUserProfile = async (req, res) => {
     try {
         const user = await User.findByPk(req.user.id, {
-            attributes: ['id', 'name', 'lastName', 'email', 'phone', 'phoneConfirmed']
+            attributes: ['id', 'name', 'lastname', 'email', 'phone', 'phoneconfirmed']
         });
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
@@ -196,7 +196,7 @@ const deleteOldRefreshTokens = async () => {
         const expirationDate = new Date();
         expirationDate.setDate(expirationDate.getDate() - 7); // Видалення токенів, старших за 7 днів
 
-        const result = await RefreshToken.destroy({ where: { createdAt: { [Op.lt]: expirationDate } } });
+        const result = await RefreshToken.destroy({ where: { createdat: { [Op.lt]: expirationDate } } });
         console.log(`Old refresh tokens deleted: ${result} tokens removed`);
     } catch (error) {
         console.error('Error deleting old refresh tokens:', error);

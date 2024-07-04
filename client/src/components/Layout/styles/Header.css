@@ -1,0 +1,118 @@
+/* Header.css */
+
+.header {
+    background-color: #f8f9fa;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    border-bottom: 2px solid #ddd;
+    position: relative;
+    justify-content: space-between;
+    /* Додаємо для вирівнювання по краях */
+}
+
+.burger-button {
+    font-size: 1.5em;
+    background: none;
+    border: none;
+    cursor: pointer;
+    position: absolute;
+    left: 20px;
+}
+
+.search-container {
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+    justify-content: center;
+}
+
+.search-input {
+    width: 100%;
+    max-width: 300px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 20px 0 0 20px;
+    outline: none;
+}
+
+.search-button {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-left: none;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    border-radius: 0 0 0 0;
+    font-size: 1em;
+}
+
+.cart-button {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-left: none;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    border-radius: 0 20px 20px 0;
+    font-size: 1em;
+}
+
+.header__nav {
+    position: fixed;
+    top: 0;
+    left: -250px;
+    height: 100%;
+    width: 250px;
+    background-color: #333;
+    overflow-x: hidden;
+    transition: 0.3s;
+    padding-top: 60px;
+    display: flex;
+    flex-direction: column;
+}
+
+.header__nav.open {
+    left: 0;
+}
+
+.header__link {
+    padding: 10px 15px;
+    text-decoration: none;
+    color: #fff;
+    font-size: 1.2em;
+    transition: color 0.3s ease;
+}
+
+.header__link:hover {
+    color: #007bff;
+}
+
+@media (min-width: 768px) {
+    .header__nav {
+        position: static;
+        display: flex;
+        flex-direction: row;
+        background-color: transparent;
+        height: auto;
+        width: auto;
+        padding-top: 0;
+    }
+
+    .header__nav.open {
+        left: auto;
+    }
+
+    .header__link {
+        color: #007bff;
+        padding: 0 15px;
+    }
+
+    .header__link:hover {
+        color: #0056b3;
+    }
+
+    .burger-button {
+        display: none;
+    }
+}

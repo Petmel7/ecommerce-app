@@ -7,9 +7,9 @@ const User = sequelize.define('User', {
         type: DataTypes.STRING,
         allowNull: false
     },
-    lastName: {
+    lastname: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: true
     },
     email: {
         type: DataTypes.STRING,
@@ -23,7 +23,7 @@ const User = sequelize.define('User', {
         type: DataTypes.STRING,
         allowNull: true // Дозволяємо null значення для пароля, оскільки користувач може авторизуватися через Google
     },
-    emailConfirmed: {
+    emailconfirmed: {
         type: DataTypes.BOOLEAN,
         defaultValue: false
     },
@@ -31,18 +31,21 @@ const User = sequelize.define('User', {
         type: DataTypes.STRING,
         allowNull: true // Дозволяємо null значення для поля phone
     },
-    phoneConfirmed: {
+    phoneconfirmed: {
         type: DataTypes.BOOLEAN,
         defaultValue: false
     },
-    confirmationCode: {
+    confirmationcode: {
         type: DataTypes.STRING,
         allowNull: true // Дозволяємо null значення для поля confirmationCode
     },
-    googleId: {
+    googleid: {
         type: DataTypes.STRING,
         allowNull: true // Дозволяємо null значення для поля googleId
     }
+}, {
+    timestamps: false,
+    tableName: 'users'
 });
 
 module.exports = User;
