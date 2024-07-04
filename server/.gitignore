@@ -1,3 +1,10 @@
 
-# Environment variables
+# Ignore node_modules folder
+node_modules/
+
+# Add other files or folders to ignore as needed
 .env
+dist/
+build/
+coverage/
+*.log
